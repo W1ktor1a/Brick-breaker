@@ -1,4 +1,6 @@
+import { Brick } from "./Brick";
 import { Paddle } from "./Paddle";
+
 
 export class Game {
     board: HTMLCanvasElement;
@@ -7,6 +9,8 @@ export class Game {
     gameBoardWidth = 500;
     gameBoardHeight = 500;
     paddle: Paddle;
+    brick: Brick;
+   
     constructor() { 
         this.board = document.getElementById("playField") as HTMLCanvasElement;
         this.context = this.board.getContext('2d');
@@ -20,58 +24,64 @@ export class Game {
           this.gameBoardHeight - 25,
 
 
+        )
+        this.brick = new Brick(
+          this.gameBoardWidth / 20,
+          this.gameBoardHeight / 40,
+          this.gameBoardWidth / 2 - 50 / 2,
+          this.gameBoardHeight - 500,
 
         )
         
-    }
 
+        
+       
+        requestAnimationFrame(() => this.updateGame());
+       document.addEventListener("keydown", (e) => this.movePaddle(e) )
+       
+    }
+    public updateGame(){
+      requestAnimationFrame(() => this.updateGame());
+      this.context?.clearRect(0, 0, this.gameBoardWidth, this.gameBoardHeight);
+      this.context!.fillStyle = 'white';
+      this.context!.fillRect(
+          this.paddle.x,
+          this.paddle.y,
+          this.paddle.width,
+          this.paddle.height
+      )
+     
+      this.context!.fillStyle = 'green';
+      this.context!.fillRect(
+          this.brick.x,
+          this.brick.y,
+          this.brick.width,
+          this.brick.height
+      )
+    }
+    public movePaddle(e:KeyboardEvent) {
+        if(e.code === 'ArrowLeft'){
+            let nextx = this.paddle.x - this.paddle.speed;
+            if(!this.outOfBoard(nextx)){
+              this.paddle.x = nextx;
+             
+            }
+           
+        }
+        else if(e.code === 'ArrowRight'){
+          let nextx = this.paddle.x + this.paddle.speed;
+          if(!this.outOfBoard(nextx)){
+            this.paddle.x = nextx;
+            
+          }
+          
+      }
+      
+    }
+   private outOfBoard(xPos: number): Boolean{
+    return xPos < 0 || xPos + this.paddle.width > 500
+   }
 }
 
 
 
-/*export class CanvasView {
-  canvas: HTMLCanvasElement;
-  private context: CanvasRenderingContext2D | null;
-  private scoreDisplay: HTMLObjectElement | null;
-  private start: HTMLObjectElement | null;
-  private info: HTMLObjectElement | null;
-
-  constructor(canvasName: string) {
-   
-    this.scoreDisplay = document.querySelector('#score');
-    this.start = document.querySelector('#start');
-    this.info = document.querySelector('#info');
-  }
-
-  clear(): void {
-    this.context?.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-
-  initStartButton(startFunction: (view: CanvasView) => void): void {
-    this.start?.addEventListener('click', () => startFunction(this));
-  }
-
-  drawScore(score: number): void {
-    if (this.scoreDisplay) this.scoreDisplay.innerHTML = score.toString();
-  }
-
-  drawInfo(text: string): void {
-    if (this.info) this.info.innerHTML = text;
-  }
-
-  drawSprite(brick: Brick | Paddle | Ball): void {
-    if (!brick) return;
-
-    this.context?.drawImage(
-      brick.image,
-      brick.pos.x,
-      brick.pos.y,
-      brick.width,
-      brick.height
-    );
-  }
-
-  drawBricks(bricks: Brick[]): void {
-    bricks.forEach(brick => this.drawSprite(brick));
-  }
-}*/
